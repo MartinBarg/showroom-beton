@@ -1,0 +1,215 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+// DESARROLLO: SQLite local para que todo funcione sin cuentas externas.
+// PRODUCCIÓN: cambiar provider a "postgresql" y apuntar DATABASE_URL a
+// Supabase, luego correr `prisma migrate dev`. Los campos String que guardan
+// JSON (galeria, imagenes) y los String que emulan enums (rol, estado,
+// tipologia) pueden migrarse a tipos nativos de Postgres en ese momento.
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Proyecto {
+  id            String    @id @default(cuid())
+  nombre        String
+  descripcion   String
+  ubicacion     String
+  lat           Float
+  lng           Float
+  fechaEntrega  DateTime?
+  cantidadPisos Int
+  activo        Boolean   @default(true)
+  creadoEn      DateTime  @default(now())
+
+  pisos          Piso[]
+  vistasExterior VistaExterior[]
+  avancesObra    AvanceObra[]
+
+  @@map("proyecto")
+}
+
+model Piso {
+  id         String @id @default(cuid())
+  proyectoId String
+  numero     Int
+  orden      Int
+
+  proyecto Proyecto @relation(fields: [proyectoId], references: [id], onDelete: Cascade)
+  unidades Unidad[]
+
+  @@map("piso")
+}
+
+model Unidad {
+  id                    String   @id @default(cuid())
+  pisoId                String
+  numero                String
+  // "1 ambiente" | "2 ambientes" | "3 ambientes" | "duplex" | "local"
+  tipologia             String
+  superficieTotal       Float
+  superficieCubierta    Float
+  superficieDescubierta Float
+  orientacion           String
+  precio                Float
+  // "disponible" | "reservada" | "vendida"
+  estado                String   @default("disponible")
+  agenciaId             String?
+  esLocalComercial      Boolean  @default(false)
+  destacada             Boolean  @default(false)
+  renderUrl             String?
+  planoUrl              String?
+  // JSON array de URLs (SQLite no soporta listas escalares)
+  galeria               String   @default("[]")
+  tourKuulaUrl          String?
+  descripcion           String?
+  creadoEn              DateTime @default(now())
+  actualizadoEn         DateTime @updatedAt
+
+  piso       Piso            @relation(fields: [pisoId], references: [id], onDelete: Cascade)
+  agencia    Agencia?        @relation(fields: [agenciaId], references: [id])
+  overlays   UnidadOverlay[]
+  leads      Lead[]
+  comisiones Comision[]
+  visitas    Visita[]
+
+  @@map("unidad")
+}
+
+model VistaExterior {
+  id             String  @id @default(cuid())
+  proyectoId     String
+  nombre         String
+  imagenUrl      String
+  orden          Int
+  esVistaInicial Boolean @default(false)
+
+  proyecto            Proyecto          @relation(fields: [proyectoId], references: [id], onDelete: Cascade)
+  overlays            UnidadOverlay[]
+  transicionesOrigen  TransicionVista[] @relation("origen")
+  transicionesDestino TransicionVista[] @relation("destino")
+
+  @@map("vista_exterior")
+}
+
+model TransicionVista {
+  id             String  @id @default(cuid())
+  vistaOrigenId  String
+  vistaDestinoId String
+  // Si es null, el frontend hace crossfade CSS como fallback
+  videoUrl       String?
+
+  vistaOrigen  VistaExterior @relation("origen", fields: [vistaOrigenId], references: [id], onDelete: Cascade)
+  vistaDestino VistaExterior @relation("destino", fields: [vistaDestinoId], references: [id], onDelete: Cascade)
+
+  @@map("transicion_vista")
+}
+
+model UnidadOverlay {
+  id              String @id @default(cuid())
+  unidadId        String
+  vistaExteriorId String
+  svgPath         String
+
+  unidad        Unidad        @relation(fields: [unidadId], references: [id], onDelete: Cascade)
+  vistaExterior VistaExterior @relation(fields: [vistaExteriorId], references: [id], onDelete: Cascade)
+
+  @@map("unidad_overlay")
+}
+
+model Usuario {
+  id           String    @id @default(cuid())
+  nombre       String
+  email        String    @unique
+  passwordHash String
+  // "OWNER" | "DESARROLLADOR" | "AGENCIA"
+  rol          String
+  agenciaId    String?
+  activo       Boolean   @default(true)
+  creadoEn     DateTime  @default(now())
+  ultimoLogin  DateTime?
+
+  agencia Agencia? @relation(fields: [agenciaId], references: [id])
+
+  @@map("usuario")
+}
+
+model Agencia {
+  id       String   @id @default(cuid())
+  nombre   String
+  email    String
+  telefono String?
+  activa   Boolean  @default(true)
+  creadoEn DateTime @default(now())
+
+  usuarios   Usuario[]
+  unidades   Unidad[]
+  leads      Lead[]
+  comisiones Comision[]
+
+  @@map("agencia")
+}
+
+model Lead {
+  id            String   @id @default(cuid())
+  nombre        String
+  email         String
+  telefono      String?
+  mensaje       String?
+  unidadId      String?
+  agenciaId     String?
+  // "Lead" | "Contactado" | "Seguimiento" | "Reserva" | "Standby" | "Won" | "Lost"
+  estado        String   @default("Lead")
+  creadoEn      DateTime @default(now())
+  actualizadoEn DateTime @updatedAt
+
+  unidad  Unidad?  @relation(fields: [unidadId], references: [id])
+  agencia Agencia? @relation(fields: [agenciaId], references: [id])
+
+  @@map("lead")
+}
+
+model AvanceObra {
+  id               String   @id @default(cuid())
+  proyectoId       String
+  titulo           String
+  descripcion      String
+  // JSON array de URLs (SQLite no soporta listas escalares)
+  imagenes         String   @default("[]")
+  fechaPublicacion DateTime @default(now())
+  creadoEn         DateTime @default(now())
+
+  proyecto Proyecto @relation(fields: [proyectoId], references: [id], onDelete: Cascade)
+
+  @@map("avance_obra")
+}
+
+model Comision {
+  id        String    @id @default(cuid())
+  agenciaId String
+  unidadId  String?
+  concepto  String
+  monto     Float
+  // "pendiente" | "pagada"
+  estado    String    @default("pendiente")
+  fechaPago DateTime?
+  creadoEn  DateTime  @default(now())
+
+  agencia Agencia @relation(fields: [agenciaId], references: [id], onDelete: Cascade)
+  unidad  Unidad? @relation(fields: [unidadId], references: [id])
+
+  @@map("comision")
+}
+
+model Visita {
+  id        String   @id @default(cuid())
+  unidadId  String?
+  sessionId String
+  fecha     DateTime @default(now())
+
+  unidad Unidad? @relation(fields: [unidadId], references: [id], onDelete: Cascade)
+
+  @@map("visita")
+}
