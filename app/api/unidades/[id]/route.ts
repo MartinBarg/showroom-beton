@@ -35,29 +35,38 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
   const { usuario } = guard;
 
   const body = await req.json().catch(() => null);
-  const esquema = usuario.rol === "OWNER" ? esquemaOwner : esquemaDesarrollador;
-  const datos = esquema.safeParse(body);
-  if (!datos.success) {
-    return NextResponse.json({ error: "Datos inválidos" }, { status: 400 });
+  let datos: z.infer<typeof esquemaOwner>;
+  if (usuario.rol === "OWNER") {
+    const resultado = esquemaOwner.safeParse(body);
+    if (!resultado.success) {
+      return NextResponse.json({ error: "Datos inválidos" }, { status: 400 });
+    }
+    datos = resultado.data;
+  } else {
+    const resultado = esquemaDesarrollador.safeParse(body);
+    if (!resultado.success) {
+      return NextResponse.json({ error: "Datos inválidos" }, { status: 400 });
+    }
+    datos = resultado.data;
   }
 
   const unidad = await prisma.unidad.findUnique({ where: { id: params.id } });
   if (!unidad) return NextResponse.json({ error: "Unidad no encontrada" }, { status: 404 });
 
-  if (datos.data.agenciaId) {
-    const agencia = await prisma.agencia.findUnique({ where: { id: datos.data.agenciaId } });
+  if (datos.agenciaId) {
+    const agencia = await prisma.agencia.findUnique({ where: { id: datos.agenciaId } });
     if (!agencia) return NextResponse.json({ error: "Agencia inexistente" }, { status: 400 });
   }
-  if ("pisoId" in datos.data && datos.data.pisoId) {
-    const piso = await prisma.piso.findUnique({ where: { id: datos.data.pisoId } });
+  if (datos.pisoId) {
+    const piso = await prisma.piso.findUnique({ where: { id: datos.pisoId } });
     if (!piso) return NextResponse.json({ error: "Piso inexistente" }, { status: 400 });
   }
 
-  const { galeria, ...resto } = datos.data as z.infer<typeof esquemaOwner>;
+  const { galeria, ...resto } = datos;
   const cambios: Record<string, unknown> = { ...resto };
   if (galeria !== undefined) cambios.galeria = JSON.stringify(galeria);
   // Una unidad disponible no puede quedar asignada a una agencia
-  const estadoFinal = datos.data.estado ?? unidad.estado;
+  const estadoFinal = datos.estado ?? unidad.estado;
   if (estadoFinal === "disponible") cambios.agenciaId = null;
 
   const actualizada = await prisma.unidad.update({
