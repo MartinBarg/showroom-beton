@@ -1,0 +1,56 @@
+{
+  "name": "washington-2346-showroom",
+  "version": "0.1.0",
+  "private": true,
+  "prisma": {
+    "seed": "tsx prisma/seed.ts"
+  },
+  "scripts": {
+    "postinstall": "node scripts/ensure-env.mjs && prisma generate",
+    "predev": "node scripts/ensure-env.mjs && node scripts/ensure-db.mjs",
+    "dev": "next dev",
+    "prebuild": "node scripts/ensure-env.mjs && prisma generate",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "db:push": "prisma db push",
+    "db:seed": "prisma db seed",
+    "db:setup": "prisma db push && prisma db seed"
+  },
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.600.0",
+    "@hello-pangea/dnd": "^16.6.0",
+    "@prisma/client": "^5.22.0",
+    "@vercel/analytics": "^1.3.1",
+    "bcryptjs": "^2.4.3",
+    "class-variance-authority": "^0.7.0",
+    "clsx": "^2.1.1",
+    "framer-motion": "^11.2.10",
+    "lucide-react": "^0.400.0",
+    "next": "^14.2.5",
+    "next-auth": "^4.24.7",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "recharts": "^2.12.7",
+    "resend": "^3.4.0",
+    "tailwind-merge": "^2.3.0",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
+    "@types/node": "^20.14.9",
+    "@types/react": "^18.3.3",
+    "@types/react-dom": "^18.3.0",
+    "autoprefixer": "^10.4.19",
+    "eslint": "^8.57.0",
+    "eslint-config-next": "^14.2.5",
+    "postcss": "^8.4.38",
+    "prisma": "^5.22.0",
+    "tailwindcss": "^3.4.4",
+    "tsx": "^4.16.0",
+    "typescript": "^5.5.3",
+    "vitest": "^2.0.5"
+  }
+}
