@@ -16,7 +16,7 @@ export function HeroLanding({ nombre, tagline, imagenUrl }: HeroLandingProps) {
       <img
         src={imagenUrl}
         alt=""
-        className="absolute inset-0 h-full w-full object-cover"
+        className="absolute inset-0 h-full w-full bg-white object-contain"
       />
       <div className="absolute inset-0 bg-gradient-to-b from-stone-950/70 via-stone-950/50 to-stone-950" />
 
