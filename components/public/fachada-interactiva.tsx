@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
 import { Clock, Lock, X } from "lucide-react";
@@ -50,8 +50,22 @@ export function FachadaInteractiva({ vistas, transiciones, unidades }: Props) {
   const vistaPendiente = useRef<Vista | null>(null);
   const [resaltada, setResaltada] = useState<string | null>(null);
   const [preview, setPreview] = useState<Unidad | null>(null);
+  // Tamaño natural de la foto actual: el viewBox del SVG de overlays tiene
+  // que calzar con los píxeles reales de la imagen (mismo "contain" que el <img>)
+  // para que los polígonos queden pegados a los departamentos.
+  const [naturalSize, setNaturalSize] = useState({ w: 1600, h: 1000 });
+  const imgRef = useRef<HTMLImageElement>(null);
 
   const porId = useMemo(() => new Map(unidades.map((u) => [u.id, u])), [unidades]);
+
+  // Si la imagen ya está en caché del navegador, "onLoad" nunca se dispara
+  // porque el evento nativo ya pasó antes de montar el listener de React.
+  useEffect(() => {
+    const img = imgRef.current;
+    if (img && img.complete && img.naturalWidth) {
+      setNaturalSize({ w: img.naturalWidth, h: img.naturalHeight });
+    }
+  }, [vistaActual?.id]);
 
   if (!vistaActual) {
     return (
@@ -88,18 +102,11 @@ export function FachadaInteractiva({ vistas, transiciones, unidades }: Props) {
   }
 
   function manejarPointerUp(e: React.PointerEvent, unidad: Unidad) {
+    // Desktop: el hover ya resaltó la sección; el click/tap abre la ficha.
+    // Mobile: no hay hover, así que el tap resalta y abre la ficha a la vez.
     e.stopPropagation();
-    if (e.pointerType === "mouse") {
-      // Desktop: el hover ya resaltó; el click abre el preview
-      setPreview(unidad);
-    } else {
-      // Mobile: 1er tap resalta, 2do tap abre el preview
-      if (resaltada === unidad.id) {
-        setPreview(unidad);
-      } else {
-        setResaltada(unidad.id);
-      }
-    }
+    setResaltada(unidad.id);
+    setPreview(unidad);
   }
 
   const fichaHref = (u: Unidad) =>
@@ -111,21 +118,26 @@ export function FachadaInteractiva({ vistas, transiciones, unidades }: Props) {
       <AnimatePresence>
         <motion.img
           key={vistaActual.id}
+          ref={imgRef}
           src={vistaActual.imagenUrl}
           alt={vistaActual.nombre}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.7 }}
-          className="absolute inset-0 h-full w-full object-cover"
+          className="absolute inset-0 h-full w-full bg-white object-contain"
+          onLoad={(e) => {
+            const img = e.currentTarget;
+            setNaturalSize({ w: img.naturalWidth, h: img.naturalHeight });
+          }}
         />
       </AnimatePresence>
 
       {/* Overlay SVG con las áreas clickeables */}
       {!videoActivo && (
         <svg
-          viewBox="0 0 1600 1000"
-          preserveAspectRatio="xMidYMid slice"
+          viewBox={`0 0 ${naturalSize.w} ${naturalSize.h}`}
+          preserveAspectRatio="xMidYMid meet"
           className="absolute inset-0 h-full w-full"
           onPointerUp={() => {
             setResaltada(null);
@@ -145,8 +157,8 @@ export function FachadaInteractiva({ vistas, transiciones, unidades }: Props) {
                 stroke={color.stroke}
                 strokeWidth={activa ? 5 : 2}
                 className={cn(
-                  "cursor-pointer transition-all duration-150",
-                  activa ? "opacity-100" : "opacity-70 hover:opacity-100"
+                  "cursor-pointer transition-opacity duration-150",
+                  activa ? "opacity-100" : "opacity-0"
                 )}
                 style={activa ? { filter: "brightness(1.35)" } : undefined}
                 onMouseEnter={() => setResaltada(unidad.id)}
@@ -220,7 +232,10 @@ export function FachadaInteractiva({ vistas, transiciones, unidades }: Props) {
           >
             <button
               type="button"
-              onClick={() => setPreview(null)}
+              onClick={() => {
+                setPreview(null);
+                setResaltada(null);
+              }}
               className="absolute right-3 top-3 rounded-md p-1 text-stone-400 hover:bg-white/10 hover:text-white"
               aria-label="Cerrar preview"
             >

@@ -2,13 +2,12 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Plus, Star, Trash2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import Link from "next/link";
+import { PenTool, Plus, Star, Trash2 } from "lucide-react";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Modal } from "@/components/ui/modal";
-import { Select } from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 
@@ -33,7 +32,6 @@ type TransicionDTO = {
 type Props = {
   vistas: VistaDTO[];
   transiciones: TransicionDTO[];
-  unidades: Array<{ id: string; numero: string }>;
 };
 
 type FormVista = {
@@ -44,15 +42,10 @@ type FormVista = {
   esVistaInicial: boolean;
 };
 
-export function GestionVistas({ vistas, transiciones, unidades }: Props) {
+export function GestionVistas({ vistas, transiciones }: Props) {
   const router = useRouter();
   const [formVista, setFormVista] = useState<FormVista | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [overlayNuevo, setOverlayNuevo] = useState<{
-    vistaId: string;
-    unidadId: string;
-    svgPath: string;
-  } | null>(null);
   const [videos, setVideos] = useState<Record<string, string>>(() => {
     const inicial: Record<string, string> = {};
     for (const t of transiciones) {
@@ -90,17 +83,6 @@ export function GestionVistas({ vistas, transiciones, unidades }: Props) {
       ? await llamar(`/api/vistas/${formVista.id}`, "PATCH", payload)
       : await llamar("/api/vistas", "POST", payload);
     if (ok) setFormVista(null);
-  }
-
-  async function agregarOverlay(e: React.FormEvent) {
-    e.preventDefault();
-    if (!overlayNuevo) return;
-    const ok = await llamar("/api/overlays", "POST", {
-      vistaExteriorId: overlayNuevo.vistaId,
-      unidadId: overlayNuevo.unidadId,
-      svgPath: overlayNuevo.svgPath,
-    });
-    if (ok) setOverlayNuevo(null);
   }
 
   return (
@@ -183,15 +165,12 @@ export function GestionVistas({ vistas, transiciones, unidades }: Props) {
                   <h3 className="text-sm font-medium">
                     Overlays ({vista.overlays.length})
                   </h3>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() =>
-                      setOverlayNuevo({ vistaId: vista.id, unidadId: unidades[0]?.id ?? "", svgPath: "" })
-                    }
+                  <Link
+                    href={`/panel-interno/vistas-exterior/${vista.id}`}
+                    className={buttonVariants({ variant: "outline", size: "sm" })}
                   >
-                    <Plus className="h-3.5 w-3.5" /> Overlay
-                  </Button>
+                    <PenTool className="h-3.5 w-3.5" /> Editor visual
+                  </Link>
                 </div>
                 <ul className="mt-2 divide-y text-sm">
                   {vista.overlays.map((overlay) => (
@@ -331,53 +310,6 @@ export function GestionVistas({ vistas, transiciones, unidades }: Props) {
                 Cancelar
               </Button>
               <Button type="submit">Guardar</Button>
-            </div>
-          </form>
-        )}
-      </Modal>
-
-      {/* Modal alta de overlay */}
-      <Modal
-        abierto={overlayNuevo !== null}
-        onCerrar={() => setOverlayNuevo(null)}
-        titulo="Nuevo overlay"
-      >
-        {overlayNuevo && (
-          <form onSubmit={agregarOverlay} className="space-y-4">
-            <div className="space-y-1.5">
-              <Label htmlFor="overlay-unidad">Unidad</Label>
-              <Select
-                id="overlay-unidad"
-                required
-                value={overlayNuevo.unidadId}
-                onChange={(e) => setOverlayNuevo({ ...overlayNuevo, unidadId: e.target.value })}
-              >
-                {unidades.map((u) => (
-                  <option key={u.id} value={u.id}>
-                    {u.numero}
-                  </option>
-                ))}
-              </Select>
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="overlay-path">Path SVG</Label>
-              <Textarea
-                id="overlay-path"
-                required
-                rows={4}
-                value={overlayNuevo.svgPath}
-                onChange={(e) => setOverlayNuevo({ ...overlayNuevo, svgPath: e.target.value })}
-                placeholder="M 240 670 L 500 670 L 500 790 L 240 790 Z"
-              />
-              <p className="text-xs text-muted-foreground">
-                Coordenadas sobre un viewBox de 1600×1000 (igual que la imagen de la vista).
-              </p>
-            </div>
-            <div className="flex justify-end gap-2">
-              <Button type="button" variant="secondary" onClick={() => setOverlayNuevo(null)}>
-                Cancelar
-              </Button>
-              <Button type="submit">Agregar</Button>
             </div>
           </form>
         )}

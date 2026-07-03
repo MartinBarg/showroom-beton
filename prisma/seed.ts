@@ -216,8 +216,8 @@ async function main() {
   const vistaNorte = await prisma.vistaExterior.create({
     data: {
       proyectoId: proyecto.id,
-      nombre: "Fachada Norte",
-      imagenUrl: img("fachada-norte"),
+      nombre: "Vista Frontal",
+      imagenUrl: "/images/vista-frontal.png",
       orden: 1,
       esVistaInicial: true,
     },
@@ -225,55 +225,19 @@ async function main() {
   const vistaSur = await prisma.vistaExterior.create({
     data: {
       proyectoId: proyecto.id,
-      nombre: "Fachada Sur",
-      imagenUrl: img("fachada-sur"),
+      nombre: "Vista Lateral",
+      imagenUrl: "/images/vista-lateral.png",
       orden: 2,
     },
   });
-  const vistaAerea = await prisma.vistaExterior.create({
-    data: {
-      proyectoId: proyecto.id,
-      nombre: "Vista Aérea",
-      imagenUrl: img("vista-aerea"),
-      orden: 3,
-    },
-  });
 
-  // Overlays de ejemplo: polígonos en grilla sobre viewBox 1600x1000.
-  // Fachada Norte: unidades x01/x02 (columnas izquierda/centro-izquierda).
-  // Fachada Sur: unidades x03/x04. Vista aérea: el local comercial.
+  // Sin overlays de ejemplo: se dibujan a mano sobre la foto real desde
+  // /panel-interno/vistas-exterior (editor visual de polígonos).
   const porNumero = new Map(unidades.map((u) => [u.numero, u.id]));
-  const overlay = async (
-    numeroUnidad: string,
-    vistaId: string,
-    col: number,
-    fila: number
-  ) => {
-    const unidadId = porNumero.get(numeroUnidad);
-    if (!unidadId) return;
-    const x = 240 + col * 300;
-    const y = 820 - fila * 150;
-    await prisma.unidadOverlay.create({
-      data: {
-        unidadId,
-        vistaExteriorId: vistaId,
-        svgPath: `M ${x} ${y} L ${x + 260} ${y} L ${x + 260} ${y + 120} L ${x} ${y + 120} Z`,
-      },
-    });
-  };
-
-  for (let pisoN = 1; pisoN <= 5; pisoN++) {
-    await overlay(`${pisoN}01`, vistaNorte.id, 0, pisoN);
-    await overlay(`${pisoN}02`, vistaNorte.id, 1, pisoN);
-    await overlay(`${pisoN}03`, vistaSur.id, 2, pisoN);
-    await overlay(`${pisoN}04`, vistaSur.id, 3, pisoN);
-  }
-  await overlay("LC-1", vistaNorte.id, 2, 0);
-  await overlay("LC-1", vistaAerea.id, 1, 2);
 
   // Transiciones entre todas las vistas. videoUrl null = el frontend usa
   // crossfade CSS (fallback documentado). Cargar mp4 reales en /panel-interno.
-  const vistas = [vistaNorte, vistaSur, vistaAerea];
+  const vistas = [vistaNorte, vistaSur];
   for (const origen of vistas) {
     for (const destino of vistas) {
       if (origen.id === destino.id) continue;
@@ -435,7 +399,7 @@ async function main() {
     });
   }
 
-  console.log("[seed] Listo: proyecto, 6 pisos, 21 unidades, 3 vistas, 10 leads, 6 comisiones, 4 avances de obra y visitas de ejemplo.");
+  console.log("[seed] Listo: proyecto, 6 pisos, 21 unidades, 2 vistas, 10 leads, 6 comisiones, 4 avances de obra y visitas de ejemplo.");
   console.log("[seed] Credenciales de prueba en NOTAS-PARA-REVISION.md");
 }
 

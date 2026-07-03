@@ -2,7 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { GestionVistas } from "@/components/panel/gestion-vistas";
 
 export default async function PanelVistasPage() {
-  const [vistas, transiciones, unidades] = await Promise.all([
+  const [vistas, transiciones] = await Promise.all([
     prisma.vistaExterior.findMany({
       orderBy: { orden: "asc" },
       include: {
@@ -10,10 +10,6 @@ export default async function PanelVistasPage() {
       },
     }),
     prisma.transicionVista.findMany(),
-    prisma.unidad.findMany({
-      select: { id: true, numero: true },
-      orderBy: { numero: "asc" },
-    }),
   ]);
 
   return (
@@ -43,7 +39,6 @@ export default async function PanelVistasPage() {
             vistaDestinoId: t.vistaDestinoId,
             videoUrl: t.videoUrl,
           }))}
-          unidades={unidades}
         />
       </div>
     </div>
