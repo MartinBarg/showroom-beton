@@ -21,16 +21,17 @@ crear ninguna cuenta externa. Comandos útiles:
 
 | Rol | Email | Contraseña |
 |---|---|---|
-| OWNER (panel interno) | `owner@showroom.local` | `Owner!2346` |
+| OWNER (acceso total) | `owner@showroom.local` | `Owner!2346` |
 | DESARROLLADOR | `desarrollador@showroom.local` | `Desarrollador!2346` |
 | AGENCIA (Inmobiliaria Norte) | `agencia.norte@showroom.local` | `Agencia!2346` |
 | AGENCIA (Propiedades del Sur) | `agencia.sur@showroom.local` | `Agencia!2346` |
 
-Logins: `/admin/login` (desarrollador y agencias) y `/panel-interno/login`
-(solo OWNER; la ruta no está linkeada desde ningún lado público).
+Login único para todos los roles: `/admin/login`. El panel `/admin` muestra las
+secciones según el rol (el OWNER ve todo; el DESARROLLADOR, lo comercial; la
+AGENCIA, solo su dashboard y sus leads).
 
 **Cambiar las cuatro contraseñas antes de producción** (reset desde
-`/panel-interno/usuarios`; la cuenta OWNER se cambia regenerando el seed o
+`/admin/usuarios`; la cuenta OWNER se cambia regenerando el seed o
 directo en la base, porque la API bloquea modificar cuentas OWNER a propósito
 para evitar lockouts).
 
@@ -49,7 +50,7 @@ para evitar lockouts).
 ### Contenido
 - **Todas las imágenes** (renders, planos, fachadas, galería, obra) son
   `picsum.photos` / `placehold.co` seedeadas. Se reemplazan desde
-  `/panel-interno/unidades` y `/panel-interno/vistas-exterior`.
+  `/admin/contenido-unidades` y `/admin/vistas-exterior`.
 - **Tours 360**: el seed deja `tourKuulaUrl = null` en todas las unidades, así
   la pestaña Tour 360 muestra el placeholder "reemplazar con URL de Kuula" en
   vez de un iframe roto apuntando a una demo que podría desaparecer. Cargar las
@@ -62,12 +63,12 @@ para evitar lockouts).
 - **Overlays SVG**: polígonos rectangulares de ejemplo en grilla sobre un
   viewBox de 1600×1000 (Fachada Norte: unidades x01/x02 + local; Fachada Sur:
   x03/x04; Vista Aérea: local). Cuando estén los renders reales hay que
-  redibujar los paths reales desde el panel interno (mismo viewBox).
+  redibujar los paths reales desde `/admin/vistas-exterior` (mismo viewBox).
 - Textos de descripción de unidades, puntos de interés de `/ubicacion`
   (`lib/maps.ts`), datos de contacto del desarrollador y textos legales del
   footer/contacto son **placeholder marcados como tales**.
 - Lat/lng del proyecto: aproximados para Washington 2346, Belgrano (CABA).
-  Ajustar desde `/panel-interno/proyecto`.
+  Ajustar desde `/admin/proyecto`.
 
 ### Servicios externos (todos con fallback local)
 | Servicio | Comportamiento con placeholder | Para activar el real |
@@ -94,8 +95,10 @@ para evitar lockouts).
   sus cuentas.
 - Al pasar una unidad a `disponible`, el backend limpia la agencia asignada.
 - Seguridad según sección 8: bcrypt salt 12, JWT de 24 hs, middleware sobre
-  `/admin/*` y `/panel-interno/*` + validación de rol repetida en cada API y
-  en cada layout (defensa en profundidad).
+  `/admin/*` + validación de rol repetida en cada API y en cada layout
+  (defensa en profundidad). El acceso por rol vive en `lib/rbac.ts`
+  (`evaluarAcceso`, testeada rol×ruta): contenido solo-OWNER, comercial
+  OWNER+DESARROLLADOR, dashboard/leads todos los roles.
 - El lead de prueba "Prueba Smoke" puede aparecer en tu base local si corriste
   el smoke test; la base `dev.db` está gitignoreada, no viaja en el repo.
 
@@ -106,7 +109,7 @@ para evitar lockouts).
 2. Crear cuentas de Cloudflare R2, Resend y Google Maps; cargar las env vars en
    Vercel.
 3. Reemplazar imágenes, tours Kuula, videos de transición y overlays reales
-   desde `/panel-interno`.
+   desde `/admin` (secciones Contenido de unidades y Vistas exterior).
 4. Cambiar el número real de WhatsApp, datos de contacto y textos legales.
 5. Cambiar `NEXTAUTH_SECRET` por uno aleatorio fuerte y rotar las 4 contraseñas
    del seed.
@@ -117,8 +120,8 @@ para evitar lockouts).
 
 - `npm run typecheck` ✅ sin errores
 - `npm run lint` ✅ sin warnings
-- `npm run test` ✅ 27/27 (RBAC rol×ruta, métricas/comisiones, rate limiting)
-- `npm run build` ✅ 41 páginas + 23 APIs
+- `npm run test` ✅ 28/28 (RBAC rol×ruta, métricas/comisiones, rate limiting)
+- `npm run build` ✅ sin errores
 - Smoke test HTTP sobre build de producción: rutas públicas 200, `/admin` sin
-  sesión → 307 a `/admin/login`, `/panel-interno/*` sin sesión → 307 a `/`,
-  `POST /api/leads` crea lead y loguea el email mock ✅
+  sesión → 307 a `/admin/login`, `POST /api/leads` crea lead y loguea el email
+  mock ✅

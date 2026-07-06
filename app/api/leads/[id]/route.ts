@@ -10,7 +10,7 @@ const esquema = z.object({
 });
 
 export async function PATCH(req: Request, { params }: { params: { id: string } }) {
-  const guard = await requireApiRol(["DESARROLLADOR", "AGENCIA"]);
+  const guard = await requireApiRol(["DESARROLLADOR", "AGENCIA", "OWNER"]);
   if (guard.error) return guard.error;
   const { usuario } = guard;
 

@@ -1,7 +1,9 @@
 import { prisma } from "@/lib/prisma";
 import { ProyectoForm } from "@/components/panel/proyecto-form";
 
-export default async function PanelProyectoPage() {
+export const metadata = { title: "Datos del proyecto" };
+
+export default async function ProyectoAdminPage() {
   const proyecto = await prisma.proyecto.findFirst();
 
   if (!proyecto) {

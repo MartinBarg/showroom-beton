@@ -11,7 +11,7 @@ export default async function PublicLayout({ children }: { children: React.React
       <PublicNav />
       {children}
       <PublicFooter />
-      {session?.user && <BarraAdmin rol={session.user.rol} />}
+      {session?.user && <BarraAdmin />}
     </div>
   );
 }

@@ -11,7 +11,7 @@ const esquema = z.object({
 });
 
 export async function PATCH(req: Request, { params }: { params: { id: string } }) {
-  const guard = await requireApiRol(["DESARROLLADOR"]);
+  const guard = await requireApiRol(["DESARROLLADOR", "OWNER"]);
   if (guard.error) return guard.error;
 
   const body = await req.json().catch(() => null);
@@ -41,7 +41,7 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
 }
 
 export async function DELETE(_req: Request, { params }: { params: { id: string } }) {
-  const guard = await requireApiRol(["DESARROLLADOR"]);
+  const guard = await requireApiRol(["DESARROLLADOR", "OWNER"]);
   if (guard.error) return guard.error;
 
   const existente = await prisma.avanceObra.findUnique({ where: { id: params.id } });

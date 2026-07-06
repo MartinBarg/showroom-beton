@@ -31,7 +31,7 @@ export default async function LeadsPage() {
         <h1 className="text-2xl font-semibold">Leads</h1>
         <p className="text-sm text-muted-foreground">
           Arrastrá las tarjetas entre columnas para actualizar el estado.
-          {rol === "DESARROLLADOR" && " Hacé click en una tarjeta para asignar agencia."}
+          {rol !== "AGENCIA" && " Hacé click en una tarjeta para asignar agencia."}
         </p>
       </div>
       <KanbanLeads
@@ -48,7 +48,7 @@ export default async function LeadsPage() {
           creadoEn: l.creadoEn.toISOString(),
         }))}
         agencias={agencias.map((a) => ({ id: a.id, nombre: a.nombre }))}
-        puedeAsignar={rol === "DESARROLLADOR"}
+        puedeAsignar={rol !== "AGENCIA"}
       />
     </div>
   );

@@ -15,7 +15,7 @@ const esquema = z.object({
 // Alta de agencia: crea la agencia + su cuenta de usuario con contraseña
 // temporal (se devuelve una sola vez).
 export async function POST(req: Request) {
-  const guard = await requireApiRol(["DESARROLLADOR"]);
+  const guard = await requireApiRol(["DESARROLLADOR", "OWNER"]);
   if (guard.error) return guard.error;
 
   const body = await req.json().catch(() => null);

@@ -5,18 +5,23 @@ import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import type { Rol } from "@/lib/types";
 
-const LINKS: Array<{ href: string; etiqueta: string; soloDesarrollador?: boolean }> = [
+// `roles` ausente = visible para todos los roles autenticados.
+const LINKS: Array<{ href: string; etiqueta: string; roles?: Rol[] }> = [
   { href: "/admin/dashboard", etiqueta: "Dashboard" },
   { href: "/admin/leads", etiqueta: "Leads" },
-  { href: "/admin/unidades", etiqueta: "Unidades", soloDesarrollador: true },
-  { href: "/admin/obra", etiqueta: "Obra", soloDesarrollador: true },
-  { href: "/admin/pagos", etiqueta: "Pagos", soloDesarrollador: true },
-  { href: "/admin/agencias", etiqueta: "Agencias", soloDesarrollador: true },
+  { href: "/admin/unidades", etiqueta: "Unidades", roles: ["DESARROLLADOR", "OWNER"] },
+  { href: "/admin/obra", etiqueta: "Obra", roles: ["DESARROLLADOR", "OWNER"] },
+  { href: "/admin/pagos", etiqueta: "Pagos", roles: ["DESARROLLADOR", "OWNER"] },
+  { href: "/admin/agencias", etiqueta: "Agencias", roles: ["DESARROLLADOR", "OWNER"] },
+  { href: "/admin/proyecto", etiqueta: "Proyecto", roles: ["OWNER"] },
+  { href: "/admin/vistas-exterior", etiqueta: "Vistas", roles: ["OWNER"] },
+  { href: "/admin/contenido-unidades", etiqueta: "Contenido", roles: ["OWNER"] },
+  { href: "/admin/usuarios", etiqueta: "Usuarios", roles: ["OWNER"] },
 ];
 
 export function AdminNav({ rol }: { rol: Rol }) {
   const pathname = usePathname();
-  const visibles = LINKS.filter((l) => !l.soloDesarrollador || rol === "DESARROLLADOR");
+  const visibles = LINKS.filter((l) => !l.roles || l.roles.includes(rol));
 
   return (
     <nav className="flex items-center gap-1 overflow-x-auto">
