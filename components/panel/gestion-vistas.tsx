@@ -166,7 +166,7 @@ export function GestionVistas({ vistas, transiciones }: Props) {
                     Overlays ({vista.overlays.length})
                   </h3>
                   <Link
-                    href={`/panel-interno/vistas-exterior/${vista.id}`}
+                    href={`/admin/vistas-exterior/${vista.id}`}
                     className={buttonVariants({ variant: "outline", size: "sm" })}
                   >
                     <PenTool className="h-3.5 w-3.5" /> Editor visual

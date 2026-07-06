@@ -11,7 +11,7 @@ const esquema = z.object({
 });
 
 export async function POST(req: Request) {
-  const guard = await requireApiRol(["DESARROLLADOR"]);
+  const guard = await requireApiRol(["DESARROLLADOR", "OWNER"]);
   if (guard.error) return guard.error;
 
   const body = await req.json().catch(() => null);

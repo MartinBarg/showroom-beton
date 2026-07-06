@@ -4,6 +4,8 @@ import { ArrowLeft } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { OverlayEditor } from "@/components/panel/overlay-editor";
 
+export const metadata = { title: "Editor de overlays" };
+
 export default async function EditorOverlaysPage({ params }: { params: { id: string } }) {
   const vista = await prisma.vistaExterior.findUnique({
     where: { id: params.id },
@@ -19,7 +21,7 @@ export default async function EditorOverlaysPage({ params }: { params: { id: str
   return (
     <div>
       <Link
-        href="/panel-interno/vistas-exterior"
+        href="/admin/vistas-exterior"
         className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
       >
         <ArrowLeft className="h-3.5 w-3.5" /> Vistas exteriores

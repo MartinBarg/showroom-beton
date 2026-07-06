@@ -25,12 +25,17 @@ Credenciales de prueba y lista completa de placeholders: ver
 - **Showroom público** (`/`): fachada interactiva con overlays SVG por unidad,
   fichas con plano/galería/tour 360, catálogo con filtros, avances de obra,
   ubicación y contacto (crea leads).
-- **Admin cliente** (`/admin`): dashboard con KPIs y gráficos, kanban de leads
-  con drag & drop, gestión de unidades, obra, pagos/comisiones y agencias.
-  Roles `DESARROLLADOR` (todo) y `AGENCIA` (solo sus datos).
-- **Panel interno** (`/panel-interno`): solo rol `OWNER`. Carga de contenido
-  real (proyecto, vistas exteriores, transiciones, unidades) y gestión de
-  cuentas.
+- **Panel de gestión** (`/admin`): un solo panel con login único
+  (`/admin/login`) que muestra las secciones según el rol:
+  - `AGENCIA`: dashboard propio y sus leads.
+  - `DESARROLLADOR`: además dashboard con KPIs y gráficos, kanban de leads,
+    unidades (venta), obra, pagos/comisiones y agencias.
+  - `OWNER`: acceso total — todo lo anterior más la carga de contenido real
+    (datos del proyecto, vistas exteriores + overlays, contenido de unidades y
+    gestión de cuentas).
+
+  El mapa de acceso por rol vive en `lib/rbac.ts` (`evaluarAcceso`), testeado
+  rol×ruta en `tests/rbac.test.ts`.
 
 ## Stack
 

@@ -1,7 +1,9 @@
 import { prisma } from "@/lib/prisma";
 import { GestionVistas } from "@/components/panel/gestion-vistas";
 
-export default async function PanelVistasPage() {
+export const metadata = { title: "Vistas exteriores" };
+
+export default async function VistasExterioresAdminPage() {
   const [vistas, transiciones] = await Promise.all([
     prisma.vistaExterior.findMany({
       orderBy: { orden: "asc" },

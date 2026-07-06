@@ -23,49 +23,41 @@ describe("evaluarAcceso — rutas públicas", () => {
     }
   });
 
-  it("permite las páginas de login a cualquiera", () => {
+  it("permite la página de login a cualquiera", () => {
     for (const rol of ROLES) {
       esperarPermitido("/admin/login", rol);
-      esperarPermitido("/panel-interno/login", rol);
     }
   });
 });
 
-describe("evaluarAcceso — panel interno (solo OWNER)", () => {
-  const rutas = [
-    "/panel-interno",
-    "/panel-interno/proyecto",
-    "/panel-interno/vistas-exterior",
-    "/panel-interno/unidades",
-    "/panel-interno/usuarios",
-  ];
-
-  it("permite todo el panel interno al OWNER", () => {
-    for (const ruta of rutas) esperarPermitido(ruta, "OWNER");
-  });
-
-  it("redirige al showroom a todo rol que no sea OWNER", () => {
-    for (const rol of [null, "DESARROLLADOR", "AGENCIA"] as const) {
-      for (const ruta of rutas) esperarRedireccion(ruta, rol, "/");
-    }
-  });
-});
-
-describe("evaluarAcceso — admin", () => {
-  it("sin sesión redirige a /admin/login", () => {
-    for (const ruta of ["/admin", "/admin/dashboard", "/admin/leads", "/admin/unidades"]) {
+describe("evaluarAcceso — admin sin sesión", () => {
+  it("redirige a /admin/login toda ruta /admin protegida", () => {
+    for (const ruta of [
+      "/admin",
+      "/admin/dashboard",
+      "/admin/leads",
+      "/admin/unidades",
+      "/admin/proyecto",
+      "/admin/vistas-exterior",
+      "/admin/contenido-unidades",
+      "/admin/usuarios",
+    ]) {
       esperarRedireccion(ruta, null, "/admin/login");
     }
   });
+});
 
-  it("dashboard y leads accesibles para los tres roles autenticados", () => {
+describe("evaluarAcceso — dashboard y leads (todo rol autenticado)", () => {
+  it("accesibles para los tres roles", () => {
     for (const rol of ["OWNER", "DESARROLLADOR", "AGENCIA"] as const) {
       esperarPermitido("/admin/dashboard", rol);
       esperarPermitido("/admin/leads", rol);
     }
   });
+});
 
-  const soloDesarrollador = [
+describe("evaluarAcceso — secciones comerciales (OWNER + DESARROLLADOR)", () => {
+  const rutas = [
     "/admin/unidades",
     "/admin/obra",
     "/admin/pagos",
@@ -73,20 +65,44 @@ describe("evaluarAcceso — admin", () => {
     "/admin/agencias/nueva",
   ];
 
-  it("las secciones restringidas quedan disponibles para DESARROLLADOR", () => {
-    for (const ruta of soloDesarrollador) esperarPermitido(ruta, "DESARROLLADOR");
-  });
-
-  it("AGENCIA y OWNER rebotan al dashboard en las secciones restringidas", () => {
-    for (const rol of ["AGENCIA", "OWNER"] as const) {
-      for (const ruta of soloDesarrollador) {
-        esperarRedireccion(ruta, rol, "/admin/dashboard");
-      }
+  it("permitidas para OWNER y DESARROLLADOR", () => {
+    for (const rol of ["OWNER", "DESARROLLADOR"] as const) {
+      for (const ruta of rutas) esperarPermitido(ruta, rol);
     }
   });
 
-  it("no confunde prefijos parecidos (p. ej. /admin/leads-x vs /admin/leads)", () => {
+  it("la AGENCIA rebota al dashboard", () => {
+    for (const ruta of rutas) esperarRedireccion(ruta, "AGENCIA", "/admin/dashboard");
+  });
+});
+
+describe("evaluarAcceso — secciones de contenido (solo OWNER)", () => {
+  const rutas = [
+    "/admin/proyecto",
+    "/admin/vistas-exterior",
+    "/admin/vistas-exterior/abc",
+    "/admin/contenido-unidades",
+    "/admin/usuarios",
+  ];
+
+  it("permitidas solo para OWNER", () => {
+    for (const ruta of rutas) esperarPermitido(ruta, "OWNER");
+  });
+
+  it("DESARROLLADOR y AGENCIA rebotan al dashboard", () => {
+    for (const rol of ["DESARROLLADOR", "AGENCIA"] as const) {
+      for (const ruta of rutas) esperarRedireccion(ruta, rol, "/admin/dashboard");
+    }
+  });
+});
+
+describe("evaluarAcceso — no confunde prefijos parecidos", () => {
+  it("/admin/unidadesx no matchea /admin/unidades", () => {
     // startsWith con "/" evita que /admin/unidadesX matchee /admin/unidades
     esperarPermitido("/admin/unidadesx", "AGENCIA");
+  });
+
+  it("/admin/contenido-unidades no lo bloquea la regla comercial de /admin/unidades", () => {
+    esperarPermitido("/admin/contenido-unidades", "OWNER");
   });
 });

@@ -1,7 +1,9 @@
 import { prisma } from "@/lib/prisma";
 import { GestionUsuarios } from "@/components/panel/gestion-usuarios";
 
-export default async function PanelUsuariosPage() {
+export const metadata = { title: "Usuarios" };
+
+export default async function UsuariosAdminPage() {
   const usuarios = await prisma.usuario.findMany({
     include: { agencia: { select: { nombre: true } } },
     orderBy: [{ rol: "asc" }, { creadoEn: "asc" }],

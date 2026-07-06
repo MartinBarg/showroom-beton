@@ -171,7 +171,7 @@ async function main() {
             img(`unidad-${def.numero}-g4`, 1200, 800),
           ]),
           // Placeholder: la página muestra un aviso "reemplazar con URL de
-          // Kuula" cuando es null. Se carga la real desde /panel-interno.
+          // Kuula" cuando es null. Se carga la real desde /admin/contenido-unidades.
           tourKuulaUrl: null,
           descripcion: `Unidad ${def.numero} de ${def.tipologia} con orientación ${def.orientacion.toLowerCase()}. Terminaciones premium, pisos de porcelanato, carpinterías de aluminio con DVH y calefacción por radiadores. Placeholder de descripción real.`,
         },
@@ -232,11 +232,11 @@ async function main() {
   });
 
   // Sin overlays de ejemplo: se dibujan a mano sobre la foto real desde
-  // /panel-interno/vistas-exterior (editor visual de polígonos).
+  // /admin/vistas-exterior (editor visual de polígonos).
   const porNumero = new Map(unidades.map((u) => [u.numero, u.id]));
 
   // Transiciones entre todas las vistas. videoUrl null = el frontend usa
-  // crossfade CSS (fallback documentado). Cargar mp4 reales en /panel-interno.
+  // crossfade CSS (fallback documentado). Cargar mp4 reales en /admin/vistas-exterior.
   const vistas = [vistaNorte, vistaSur];
   for (const origen of vistas) {
     for (const destino of vistas) {

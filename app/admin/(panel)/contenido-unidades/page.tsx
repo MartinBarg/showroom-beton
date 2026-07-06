@@ -2,7 +2,9 @@ import { prisma } from "@/lib/prisma";
 import { parseJsonArray } from "@/lib/utils";
 import { GestionUnidades } from "@/components/panel/gestion-unidades";
 
-export default async function PanelUnidadesPage() {
+export const metadata = { title: "Contenido de unidades" };
+
+export default async function ContenidoUnidadesPage() {
   const [pisos, agencias] = await Promise.all([
     prisma.piso.findMany({
       orderBy: { orden: "asc" },
@@ -13,7 +15,7 @@ export default async function PanelUnidadesPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-semibold">Pisos y unidades</h1>
+      <h1 className="text-2xl font-semibold">Contenido de unidades</h1>
       <p className="mt-1 text-sm text-muted-foreground">
         CRUD completo del contenido de cada unidad: renders, planos, galería, tour
         360, precios y estados.
