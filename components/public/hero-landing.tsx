@@ -5,11 +5,10 @@ import { motion } from "framer-motion";
 
 type HeroLandingProps = {
   nombre: string;
-  tagline: string;
   imagenUrl: string;
 };
 
-export function HeroLanding({ nombre, tagline, imagenUrl }: HeroLandingProps) {
+export function HeroLanding({ nombre, imagenUrl }: HeroLandingProps) {
   return (
     <section className="relative flex min-h-screen items-center justify-center overflow-hidden">
       {/* Fondo full-screen placeholder — reemplazar por render/video real */}
@@ -29,7 +28,6 @@ export function HeroLanding({ nombre, tagline, imagenUrl }: HeroLandingProps) {
         <h1 className="font-display text-5xl leading-tight text-white sm:text-7xl">
           {nombre}
         </h1>
-        <p className="mt-5 max-w-xl text-lg text-stone-300">{tagline}</p>
         <div className="mt-10">
           <Link
             href="/proyecto"
