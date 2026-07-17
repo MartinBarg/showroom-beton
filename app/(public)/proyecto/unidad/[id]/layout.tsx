@@ -17,7 +17,7 @@ export default async function UnidadLayout({
   if (!unidad) notFound();
 
   return (
-    <main className="pt-16">
+    <main>
       <VisitaTracker unidadId={unidad.id} />
       <FichaUnidadShell
         unidad={{

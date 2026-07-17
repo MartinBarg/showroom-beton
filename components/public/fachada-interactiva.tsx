@@ -113,7 +113,7 @@ export function FachadaInteractiva({ vistas, transiciones, unidades }: Props) {
     u.esLocalComercial ? "/local-comercial" : `/proyecto/unidad/${u.id}`;
 
   return (
-    <div className="relative h-[calc(100vh-4rem)] w-full overflow-hidden bg-stone-900">
+    <div className="relative h-screen w-full overflow-hidden bg-stone-900">
       {/* Imagen estática de la vista actual, con crossfade entre vistas */}
       <AnimatePresence>
         <motion.img
@@ -183,8 +183,8 @@ export function FachadaInteractiva({ vistas, transiciones, unidades }: Props) {
         />
       )}
 
-      {/* Nombre de la vista + leyenda */}
-      <div className="pointer-events-none absolute left-4 top-4 space-y-2 sm:left-6 sm:top-6">
+      {/* Nombre de la vista + leyenda (debajo del botón de menú flotante) */}
+      <div className="pointer-events-none absolute left-4 top-20 space-y-2 sm:left-6 sm:top-24">
         <p className="w-fit rounded-md bg-stone-950/70 px-3 py-1.5 text-sm text-stone-200 backdrop-blur">
           {vistaActual.nombre}
         </p>
