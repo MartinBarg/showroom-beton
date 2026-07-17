@@ -16,14 +16,14 @@ export default async function LocalComercialLayout({
 
   if (!local) {
     return (
-      <main className="flex min-h-screen items-center justify-center pt-16">
+      <main className="flex min-h-screen items-center justify-center">
         <p className="text-stone-400">El local comercial todavía no está cargado.</p>
       </main>
     );
   }
 
   return (
-    <main className="pt-16">
+    <main>
       <VisitaTracker unidadId={local.id} />
       <FichaUnidadShell
         unidad={{

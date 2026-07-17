@@ -8,7 +8,7 @@ export default async function ProyectoPage() {
   const proyecto = await prisma.proyecto.findFirst({ where: { activo: true } });
   if (!proyecto) {
     return (
-      <main className="flex min-h-screen items-center justify-center pt-16">
+      <main className="flex min-h-screen items-center justify-center">
         <p className="text-stone-400">No hay un proyecto activo cargado todavía.</p>
       </main>
     );
@@ -38,7 +38,7 @@ export default async function ProyectoPage() {
   ]);
 
   return (
-    <main className="pt-16">
+    <main>
       <VisitaTracker />
       <FachadaInteractiva
         vistas={vistas.map((v) => ({

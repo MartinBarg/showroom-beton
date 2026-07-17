@@ -1,6 +1,5 @@
 import { getSession } from "@/lib/session";
-import { PublicNav } from "@/components/public/nav";
-import { PublicFooter } from "@/components/public/footer";
+import { AppMenu } from "@/components/public/app-menu";
 import { BarraAdmin } from "@/components/public/barra-admin";
 
 export default async function PublicLayout({ children }: { children: React.ReactNode }) {
@@ -8,9 +7,8 @@ export default async function PublicLayout({ children }: { children: React.React
 
   return (
     <div className="min-h-screen bg-stone-950 text-stone-100">
-      <PublicNav />
+      <AppMenu />
       {children}
-      <PublicFooter />
       {session?.user && <BarraAdmin />}
     </div>
   );

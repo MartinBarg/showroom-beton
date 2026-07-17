@@ -36,7 +36,7 @@ type Props = {
 // navegación Plano/Galería/Tour 360 y botón de contacto siempre visible.
 export function FichaUnidadShell({ unidad, basePath, children, extra }: Props) {
   return (
-    <div className="relative min-h-[calc(100vh-4rem)]">
+    <div className="relative min-h-screen">
       {/* Render de fondo */}
       <img
         src={unidad.renderUrl ?? "https://picsum.photos/seed/render-generico/1920/1080"}
@@ -45,7 +45,7 @@ export function FichaUnidadShell({ unidad, basePath, children, extra }: Props) {
       />
       <div className="pointer-events-none fixed inset-0 bg-gradient-to-b from-stone-950/80 via-stone-950/70 to-stone-950" />
 
-      <div className="relative mx-auto grid max-w-7xl gap-8 px-4 py-10 sm:px-6 lg:grid-cols-[1fr_360px]">
+      <div className="relative mx-auto grid max-w-7xl gap-8 px-4 pb-10 pt-20 sm:px-6 lg:grid-cols-[1fr_360px]">
         {/* Contenido de la pestaña activa */}
         <div className="min-w-0">
           <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
