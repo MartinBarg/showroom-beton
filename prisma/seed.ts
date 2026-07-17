@@ -43,7 +43,7 @@ async function main() {
       lat: -34.5578,
       lng: -58.4632,
       fechaEntrega: new Date("2027-12-01"),
-      cantidadPisos: 6,
+      cantidadPisos: 4,
       activo: true,
     },
   });
@@ -109,45 +109,41 @@ async function main() {
   });
 
   // ---------------------------------------------------------- Pisos/Unidades
+  // Inventario real: todas las unidades del edificio están disponibles.
+  // Los datos de 001 y 002 (planta baja) son placeholder — ajustar desde
+  // /admin/contenido-unidades cuando estén los valores reales.
   const unidadesPorPiso: Record<number, UnidadSeed[]> = {
+    0: [
+      { numero: "001", tipologia: "2 ambientes", supTotal: 58, supCubierta: 50, orientacion: "Frente", precio: 135000, estado: "disponible" },
+      { numero: "002", tipologia: "1 ambiente", supTotal: 40, supCubierta: 36, orientacion: "Contrafrente", precio: 96000, estado: "disponible" },
+    ],
     1: [
       { numero: "101", tipologia: "1 ambiente", supTotal: 42, supCubierta: 38, orientacion: "Norte", precio: 98000, estado: "disponible" },
-      { numero: "102", tipologia: "2 ambientes", supTotal: 61, supCubierta: 54, orientacion: "Este", precio: 142000, estado: "reservada", agencia: 0 },
-      { numero: "103", tipologia: "2 ambientes", supTotal: 63, supCubierta: 55, orientacion: "Oeste", precio: 146000, estado: "disponible" },
-      { numero: "104", tipologia: "3 ambientes", supTotal: 88, supCubierta: 76, orientacion: "Norte", precio: 205000, estado: "vendida", agencia: 1 },
+      { numero: "102", tipologia: "2 ambientes", supTotal: 61, supCubierta: 54, orientacion: "Este", precio: 142000, estado: "disponible" },
     ],
     2: [
       { numero: "201", tipologia: "1 ambiente", supTotal: 42, supCubierta: 38, orientacion: "Norte", precio: 101000, estado: "disponible" },
       { numero: "202", tipologia: "2 ambientes", supTotal: 61, supCubierta: 54, orientacion: "Este", precio: 147000, estado: "disponible" },
       { numero: "203", tipologia: "2 ambientes", supTotal: 63, supCubierta: 55, orientacion: "Oeste", precio: 151000, estado: "disponible" },
-      { numero: "204", tipologia: "3 ambientes", supTotal: 88, supCubierta: 76, orientacion: "Norte", precio: 212000, estado: "reservada", agencia: 0 },
     ],
     3: [
-      { numero: "301", tipologia: "1 ambiente", supTotal: 42, supCubierta: 38, orientacion: "Norte", precio: 104000, estado: "vendida", agencia: 0 },
+      { numero: "301", tipologia: "1 ambiente", supTotal: 42, supCubierta: 38, orientacion: "Norte", precio: 104000, estado: "disponible" },
       { numero: "302", tipologia: "2 ambientes", supTotal: 61, supCubierta: 54, orientacion: "Este", precio: 152000, estado: "disponible" },
-      { numero: "303", tipologia: "2 ambientes", supTotal: 63, supCubierta: 55, orientacion: "Oeste", precio: 156000, estado: "disponible" },
-      { numero: "304", tipologia: "3 ambientes", supTotal: 88, supCubierta: 76, orientacion: "Norte", precio: 219000, estado: "disponible", destacada: true },
     ],
     4: [
       { numero: "401", tipologia: "1 ambiente", supTotal: 42, supCubierta: 38, orientacion: "Norte", precio: 107000, estado: "disponible" },
-      { numero: "402", tipologia: "2 ambientes", supTotal: 61, supCubierta: 54, orientacion: "Este", precio: 157000, estado: "disponible" },
-      { numero: "403", tipologia: "3 ambientes", supTotal: 90, supCubierta: 78, orientacion: "Noroeste", precio: 228000, estado: "reservada", agencia: 1 },
-      { numero: "404", tipologia: "3 ambientes", supTotal: 92, supCubierta: 79, orientacion: "Norte", precio: 233000, estado: "disponible" },
-    ],
-    5: [
-      { numero: "501", tipologia: "2 ambientes", supTotal: 65, supCubierta: 56, orientacion: "Norte", precio: 168000, estado: "disponible" },
-      { numero: "502", tipologia: "2 ambientes", supTotal: 66, supCubierta: 57, orientacion: "Este", precio: 171000, estado: "disponible" },
-      { numero: "503", tipologia: "duplex", supTotal: 128, supCubierta: 104, orientacion: "Norte", precio: 340000, estado: "disponible", destacada: true },
-      { numero: "504", tipologia: "duplex", supTotal: 122, supCubierta: 99, orientacion: "Oeste", precio: 328000, estado: "vendida", agencia: 1 },
+      { numero: "404", tipologia: "3 ambientes", supTotal: 92, supCubierta: 79, orientacion: "Norte", precio: 233000, estado: "disponible", destacada: true },
     ],
   };
 
   const unidades: { id: string; numero: string }[] = [];
+  const pisoPorNumero = new Map<number, { id: string }>();
   for (const [numeroPiso, defs] of Object.entries(unidadesPorPiso)) {
     const n = Number(numeroPiso);
     const piso = await prisma.piso.create({
       data: { proyectoId: proyecto.id, numero: n, orden: n },
     });
+    pisoPorNumero.set(n, piso);
     for (const def of defs) {
       const unidad = await prisma.unidad.create({
         data: {
@@ -180,10 +176,8 @@ async function main() {
     }
   }
 
-  // Piso 0 = planta baja con el local comercial
-  const plantaBaja = await prisma.piso.create({
-    data: { proyectoId: proyecto.id, numero: 0, orden: 0 },
-  });
+  // Local comercial en la planta baja (mismo piso 0 que 001 y 002)
+  const plantaBaja = pisoPorNumero.get(0)!;
   const local = await prisma.unidad.create({
     data: {
       pisoId: plantaBaja.id,
@@ -263,13 +257,13 @@ async function main() {
   }> = [
     { nombre: "Julia Fernández", email: "julia.f@example.com", telefono: "+54 9 11 5555-0101", mensaje: "Hola, quisiera saber el precio de lista del 2 ambientes del 3er piso.", estado: "Lead", unidad: "302" },
     { nombre: "Marcos Petti", email: "marcos.petti@example.com", telefono: "+54 9 11 5555-0102", mensaje: "¿Tienen financiación en pesos?", estado: "Lead" },
-    { nombre: "Carla Domínguez", email: "carla.d@example.com", telefono: "+54 9 11 5555-0103", mensaje: "Me interesa el dúplex con terraza.", estado: "Contactado", unidad: "503", agencia: 0 },
+    { nombre: "Carla Domínguez", email: "carla.d@example.com", telefono: "+54 9 11 5555-0103", mensaje: "Me interesa el 2 ambientes al frente.", estado: "Contactado", unidad: "203", agencia: 0 },
     { nombre: "Esteban Gutiérrez", email: "esteban.g@example.com", mensaje: "Consulto por el local comercial.", estado: "Contactado", unidad: "LC-1", agencia: 1 },
-    { nombre: "Romina Salas", email: "romina.salas@example.com", telefono: "+54 9 11 5555-0105", estado: "Seguimiento", unidad: "304", agencia: 0 },
+    { nombre: "Romina Salas", email: "romina.salas@example.com", telefono: "+54 9 11 5555-0105", estado: "Seguimiento", unidad: "301", agencia: 0 },
     { nombre: "Federico Lanza", email: "fede.lanza@example.com", telefono: "+54 9 11 5555-0106", mensaje: "Quiero coordinar una visita al showroom.", estado: "Seguimiento", agencia: 1 },
-    { nombre: "Verónica Ámbito", email: "vero.ambito@example.com", estado: "Reserva", unidad: "403", agencia: 1 },
+    { nombre: "Verónica Ámbito", email: "vero.ambito@example.com", estado: "Reserva", unidad: "404", agencia: 1 },
     { nombre: "Grupo Inversor Sur", email: "inversiones@gruposur.example.com", telefono: "+54 9 11 5555-0108", mensaje: "Consultamos por 2 unidades para inversión.", estado: "Standby", agencia: 1 },
-    { nombre: "Lucía Bermani", email: "lucia.b@example.com", telefono: "+54 9 11 5555-0109", estado: "Won", unidad: "504", agencia: 1 },
+    { nombre: "Lucía Bermani", email: "lucia.b@example.com", telefono: "+54 9 11 5555-0109", estado: "Won", unidad: "401", agencia: 1 },
     { nombre: "Pedro Aguirre", email: "pedro.a@example.com", mensaje: "Ya compré en otro proyecto, gracias.", estado: "Lost", agencia: 0 },
   ];
   for (const l of leadsSeed) {
@@ -295,12 +289,12 @@ async function main() {
     estado: "pendiente" | "pagada";
     fechaPago?: string;
   }> = [
-    { agencia: 1, unidad: "104", concepto: "Comisión venta unidad 104", monto: 8200, estado: "pagada", fechaPago: "2026-03-10" },
-    { agencia: 0, unidad: "301", concepto: "Comisión venta unidad 301", monto: 4160, estado: "pagada", fechaPago: "2026-04-22" },
-    { agencia: 1, unidad: "504", concepto: "Comisión venta unidad 504", monto: 13120, estado: "pagada", fechaPago: "2026-06-05" },
+    { agencia: 1, unidad: "404", concepto: "Comisión reserva unidad 404", monto: 8200, estado: "pendiente" },
+    { agencia: 0, unidad: "301", concepto: "Comisión reserva unidad 301", monto: 4160, estado: "pendiente" },
+    { agencia: 1, unidad: "401", concepto: "Comisión reserva unidad 401", monto: 13120, estado: "pendiente" },
     { agencia: 0, unidad: "102", concepto: "Comisión reserva unidad 102", monto: 2840, estado: "pendiente" },
-    { agencia: 0, unidad: "204", concepto: "Comisión reserva unidad 204", monto: 4240, estado: "pendiente" },
-    { agencia: 1, unidad: "403", concepto: "Comisión reserva unidad 403", monto: 4560, estado: "pendiente" },
+    { agencia: 0, unidad: "202", concepto: "Comisión reserva unidad 202", monto: 4240, estado: "pendiente" },
+    { agencia: 1, unidad: "203", concepto: "Comisión reserva unidad 203", monto: 4560, estado: "pendiente" },
   ];
   for (const c of comisionesSeed) {
     await prisma.comision.create({
@@ -365,12 +359,12 @@ async function main() {
   // ------------------------------------------------------------------ Visitas
   // Distribución sesgada para que el ranking del dashboard tenga forma.
   const pesos: Array<[string, number]> = [
-    ["503", 14],
-    ["304", 11],
-    ["104", 9],
+    ["203", 14],
+    ["301", 11],
+    ["404", 9],
     ["LC-1", 8],
     ["302", 6],
-    ["403", 5],
+    ["202", 5],
     ["201", 4],
     ["102", 3],
   ];
@@ -399,7 +393,7 @@ async function main() {
     });
   }
 
-  console.log("[seed] Listo: proyecto, 6 pisos, 21 unidades, 2 vistas, 10 leads, 6 comisiones, 4 avances de obra y visitas de ejemplo.");
+  console.log("[seed] Listo: proyecto, 5 pisos, 12 unidades (todas disponibles), 2 vistas, 10 leads, 6 comisiones, 4 avances de obra y visitas de ejemplo.");
   console.log("[seed] Credenciales de prueba en NOTAS-PARA-REVISION.md");
 }
 
