@@ -183,24 +183,6 @@ export function FachadaInteractiva({ vistas, transiciones, unidades }: Props) {
         />
       )}
 
-      {/* Nombre de la vista + leyenda (debajo del botón de menú flotante) */}
-      <div className="pointer-events-none absolute left-4 top-20 space-y-2 sm:left-6 sm:top-24">
-        <p className="w-fit rounded-md bg-stone-950/70 px-3 py-1.5 text-sm text-stone-200 backdrop-blur">
-          {vistaActual.nombre}
-        </p>
-        <div className="flex w-fit flex-col gap-1 rounded-md bg-stone-950/70 px-3 py-2 text-xs text-stone-300 backdrop-blur">
-          <span className="flex items-center gap-2">
-            <i className="h-2.5 w-2.5 rounded-full bg-emerald-400" /> Disponible
-          </span>
-          <span className="flex items-center gap-2">
-            <i className="h-2.5 w-2.5 rounded-full bg-amber-400" /> Reservada
-          </span>
-          <span className="flex items-center gap-2">
-            <i className="h-2.5 w-2.5 rounded-full bg-rose-500" /> Vendida
-          </span>
-        </div>
-      </div>
-
       {/* Botones para cambiar de vista */}
       <div className="absolute bottom-6 left-1/2 z-10 flex -translate-x-1/2 gap-2 rounded-full bg-stone-950/70 p-1.5 backdrop-blur">
         {vistas.map((vista) => (
