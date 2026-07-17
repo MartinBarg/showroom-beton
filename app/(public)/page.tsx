@@ -13,10 +13,6 @@ export default async function LandingPage() {
     <main>
       <HeroLanding
         nombre={proyecto?.nombre ?? "Washington 2346"}
-        tagline={
-          proyecto?.descripcion.split(". ")[0] ??
-          "Un edificio pensado para vivir Belgrano con otra perspectiva."
-        }
         imagenUrl={vistaInicial?.imagenUrl ?? "https://picsum.photos/seed/fachada-norte/1920/1080"}
       />
     </main>
