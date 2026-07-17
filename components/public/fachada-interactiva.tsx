@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
-import { Clock, Lock, X } from "lucide-react";
+import { ChevronLeft, ChevronRight, Clock, Lock, X } from "lucide-react";
 import { cn, formatearSuperficie } from "@/lib/utils";
 
 type Overlay = { unidadId: string; svgPath: string };
@@ -112,6 +112,13 @@ export function FachadaInteractiva({ vistas, transiciones, unidades }: Props) {
   const fichaHref = (u: Unidad) =>
     u.esLocalComercial ? "/local-comercial" : `/proyecto/unidad/${u.id}`;
 
+  // Navegación espacial entre vistas con flechas laterales: la flecha izquierda
+  // avanza en la secuencia (ej: Frontal → Lateral) y la derecha retrocede
+  // (ej: Lateral → Frontal).
+  const idxActual = vistas.findIndex((v) => v.id === vistaActual.id);
+  const vistaIzquierda = vistas[idxActual + 1];
+  const vistaDerecha = vistas[idxActual - 1];
+
   return (
     <div className="relative h-screen w-full overflow-hidden bg-stone-900">
       {/* Imagen estática de la vista actual, con crossfade entre vistas */}
@@ -183,24 +190,29 @@ export function FachadaInteractiva({ vistas, transiciones, unidades }: Props) {
         />
       )}
 
-      {/* Botones para cambiar de vista */}
-      <div className="absolute bottom-6 left-1/2 z-10 flex -translate-x-1/2 gap-2 rounded-full bg-stone-950/70 p-1.5 backdrop-blur">
-        {vistas.map((vista) => (
-          <button
-            key={vista.id}
-            type="button"
-            onClick={() => cambiarVista(vista)}
-            className={cn(
-              "rounded-full px-4 py-1.5 text-sm transition-colors",
-              vista.id === vistaActual.id
-                ? "bg-amber-400 text-stone-950"
-                : "text-stone-300 hover:bg-white/10"
-            )}
-          >
-            {vista.nombre}
-          </button>
-        ))}
-      </div>
+      {/* Flechas laterales para cambiar de vista */}
+      {vistaIzquierda && (
+        <button
+          type="button"
+          onClick={() => cambiarVista(vistaIzquierda)}
+          disabled={!!videoActivo}
+          aria-label={`Ver ${vistaIzquierda.nombre}`}
+          className="absolute left-4 top-1/2 z-10 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full border border-white/10 bg-stone-950/60 text-stone-100 shadow-lg backdrop-blur transition-colors hover:bg-stone-900/80 disabled:opacity-40 sm:left-6 sm:h-14 sm:w-14"
+        >
+          <ChevronLeft className="h-6 w-6" />
+        </button>
+      )}
+      {vistaDerecha && (
+        <button
+          type="button"
+          onClick={() => cambiarVista(vistaDerecha)}
+          disabled={!!videoActivo}
+          aria-label={`Ver ${vistaDerecha.nombre}`}
+          className="absolute right-4 top-1/2 z-10 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full border border-white/10 bg-stone-950/60 text-stone-100 shadow-lg backdrop-blur transition-colors hover:bg-stone-900/80 disabled:opacity-40 sm:right-6 sm:h-14 sm:w-14"
+        >
+          <ChevronRight className="h-6 w-6" />
+        </button>
+      )}
 
       {/* Preview flotante de la unidad */}
       <AnimatePresence>
