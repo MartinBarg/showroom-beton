@@ -16,11 +16,19 @@ type UnidadSeed = {
   tipologia: string;
   supTotal: number;
   supCubierta: number;
+  supMuro: number;
   orientacion: string;
   precio: number;
   estado: "disponible" | "reservada" | "vendida";
   agencia?: 0 | 1; // índice de agencia si está reservada/vendida
   destacada?: boolean;
+  dormitorios?: number;
+  banos?: number;
+  balcon?: boolean;
+  pileta?: boolean;
+  solarium?: boolean;
+  jardin?: boolean;
+  terraza?: boolean;
 };
 
 async function main() {
@@ -110,29 +118,29 @@ async function main() {
 
   // ---------------------------------------------------------- Pisos/Unidades
   // Inventario real: todas las unidades del edificio están disponibles.
-  // Los datos de 001 y 002 (planta baja) son placeholder — ajustar desde
-  // /admin/contenido-unidades cuando estén los valores reales.
+  // Superficies y ambientes son los valores reales de los planos. Precios y
+  // orientaciones siguen siendo placeholder — ajustar desde /admin/contenido-unidades.
   const unidadesPorPiso: Record<number, UnidadSeed[]> = {
     0: [
-      { numero: "001", tipologia: "2 ambientes", supTotal: 58, supCubierta: 50, orientacion: "Frente", precio: 135000, estado: "disponible" },
-      { numero: "002", tipologia: "1 ambiente", supTotal: 40, supCubierta: 36, orientacion: "Contrafrente", precio: 96000, estado: "disponible" },
+      { numero: "001", tipologia: "3 ambientes", supTotal: 418.67, supCubierta: 194.40, supMuro: 20.22, orientacion: "Frente", precio: 135000, estado: "disponible", dormitorios: 4, banos: 5, balcon: true, pileta: true, solarium: true, jardin: true },
+      { numero: "002", tipologia: "3 ambientes", supTotal: 226.48, supCubierta: 131.74, supMuro: 16.26, orientacion: "Contrafrente", precio: 96000, estado: "disponible", dormitorios: 3, banos: 4, balcon: true, pileta: true, solarium: true, jardin: true },
     ],
     1: [
-      { numero: "101", tipologia: "1 ambiente", supTotal: 42, supCubierta: 38, orientacion: "Norte", precio: 98000, estado: "disponible" },
-      { numero: "102", tipologia: "2 ambientes", supTotal: 61, supCubierta: 54, orientacion: "Este", precio: 142000, estado: "disponible" },
+      { numero: "101", tipologia: "2 ambientes", supTotal: 113.31, supCubierta: 90.15, supMuro: 6.43, orientacion: "Norte", precio: 98000, estado: "disponible", dormitorios: 2, banos: 3, balcon: true },
+      { numero: "102", tipologia: "2 ambientes", supTotal: 88.81, supCubierta: 69.38, supMuro: 4.48, orientacion: "Este", precio: 142000, estado: "disponible", dormitorios: 2, banos: 2, balcon: true },
     ],
     2: [
-      { numero: "201", tipologia: "1 ambiente", supTotal: 42, supCubierta: 38, orientacion: "Norte", precio: 101000, estado: "disponible" },
-      { numero: "202", tipologia: "2 ambientes", supTotal: 61, supCubierta: 54, orientacion: "Este", precio: 147000, estado: "disponible" },
-      { numero: "203", tipologia: "2 ambientes", supTotal: 63, supCubierta: 55, orientacion: "Oeste", precio: 151000, estado: "disponible" },
+      { numero: "201", tipologia: "2 ambientes", supTotal: 113.31, supCubierta: 90.15, supMuro: 6.43, orientacion: "Norte", precio: 101000, estado: "disponible", dormitorios: 2, banos: 3, balcon: true },
+      { numero: "202", tipologia: "2 ambientes", supTotal: 88.81, supCubierta: 69.38, supMuro: 4.48, orientacion: "Este", precio: 147000, estado: "disponible", dormitorios: 2, banos: 2, balcon: true },
+      { numero: "203", tipologia: "3 ambientes", supTotal: 195.56, supCubierta: 157.70, supMuro: 9.01, orientacion: "Oeste", precio: 151000, estado: "disponible", dormitorios: 3, banos: 4, balcon: true },
     ],
     3: [
-      { numero: "301", tipologia: "1 ambiente", supTotal: 42, supCubierta: 38, orientacion: "Norte", precio: 104000, estado: "disponible" },
-      { numero: "302", tipologia: "2 ambientes", supTotal: 61, supCubierta: 54, orientacion: "Este", precio: 152000, estado: "disponible" },
+      { numero: "301", tipologia: "2 ambientes", supTotal: 113.31, supCubierta: 90.15, supMuro: 6.43, orientacion: "Norte", precio: 104000, estado: "disponible", dormitorios: 2, banos: 3, balcon: true },
+      { numero: "302", tipologia: "2 ambientes", supTotal: 84.40, supCubierta: 69.38, supMuro: 4.30, orientacion: "Este", precio: 152000, estado: "disponible", dormitorios: 2, banos: 2, balcon: true },
     ],
     4: [
-      { numero: "401", tipologia: "1 ambiente", supTotal: 42, supCubierta: 38, orientacion: "Norte", precio: 107000, estado: "disponible" },
-      { numero: "404", tipologia: "3 ambientes", supTotal: 92, supCubierta: 79, orientacion: "Norte", precio: 233000, estado: "disponible", destacada: true },
+      { numero: "401", tipologia: "3 ambientes", supTotal: 307.68, supCubierta: 127.12, supMuro: 17.62, orientacion: "Norte", precio: 107000, estado: "disponible", dormitorios: 3, banos: 4, balcon: true, pileta: true, solarium: true, terraza: true },
+      { numero: "404", tipologia: "3 ambientes", supTotal: 298.85, supCubierta: 173.03, supMuro: 20.57, orientacion: "Norte", precio: 233000, estado: "disponible", destacada: true, dormitorios: 3, banos: 5, balcon: true, pileta: true, solarium: true, terraza: true },
     ],
   };
 
@@ -152,12 +160,21 @@ async function main() {
           tipologia: def.tipologia,
           superficieTotal: def.supTotal,
           superficieCubierta: def.supCubierta,
-          superficieDescubierta: Math.round((def.supTotal - def.supCubierta) * 10) / 10,
+          superficieMuro: def.supMuro,
+          superficieDescubierta:
+            Math.round((def.supTotal - def.supCubierta - def.supMuro) * 100) / 100,
           orientacion: def.orientacion,
           precio: def.precio,
           estado: def.estado,
           agenciaId: def.agencia !== undefined ? agencias[def.agencia].id : null,
           destacada: def.destacada ?? false,
+          dormitorios: def.dormitorios ?? 0,
+          banos: def.banos ?? 0,
+          balcon: def.balcon ?? false,
+          pileta: def.pileta ?? false,
+          solarium: def.solarium ?? false,
+          jardin: def.jardin ?? false,
+          terraza: def.terraza ?? false,
           renderUrl: img(`unidad-${def.numero}-render`),
           planoUrl: plano(def.numero),
           galeria: JSON.stringify([
@@ -183,13 +200,16 @@ async function main() {
       pisoId: plantaBaja.id,
       numero: "LC-1",
       tipologia: "local",
-      superficieTotal: 145,
-      superficieCubierta: 120,
-      superficieDescubierta: 25,
+      superficieTotal: 103.15,
+      superficieCubierta: 89.88,
+      superficieMuro: 5.8,
+      superficieDescubierta: 7.47,
       orientacion: "Frente",
       precio: 390000,
       estado: "disponible",
       esLocalComercial: true,
+      banos: 1,
+      jardin: true,
       renderUrl: img("local-comercial-render"),
       planoUrl: plano("LC-1"),
       galeria: JSON.stringify([

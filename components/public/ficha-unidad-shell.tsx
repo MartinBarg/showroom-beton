@@ -10,6 +10,14 @@ export type UnidadFicha = {
   superficieTotal: number;
   superficieCubierta: number;
   superficieDescubierta: number;
+  superficieMuro: number;
+  dormitorios: number;
+  banos: number;
+  balcon: boolean;
+  pileta: boolean;
+  solarium: boolean;
+  jardin: boolean;
+  terraza: boolean;
   orientacion: string;
   precio: number;
   estado: string;
@@ -18,6 +26,14 @@ export type UnidadFicha = {
   pisoNumero: number;
   esLocalComercial: boolean;
 };
+
+const AMENITIES: Array<[keyof UnidadFicha, string]> = [
+  ["balcon", "Balcón"],
+  ["pileta", "Pileta"],
+  ["solarium", "Solarium"],
+  ["jardin", "Jardín"],
+  ["terraza", "Terraza"],
+];
 
 const ESTADO_ESTILO: Record<string, string> = {
   disponible: "bg-emerald-400/15 text-emerald-300 border-emerald-400/40",
@@ -91,11 +107,27 @@ export function FichaUnidadShell({ unidad, basePath, children, extra }: Props) {
               <dd className="text-stone-100">{formatearSuperficie(unidad.superficieCubierta)}</dd>
             </div>
             <div className="flex justify-between gap-4">
-              <dt className="text-stone-400">Descubierta</dt>
+              <dt className="text-stone-400">Espacios verdes</dt>
               <dd className="text-stone-100">
                 {formatearSuperficie(unidad.superficieDescubierta)}
               </dd>
             </div>
+            <div className="flex justify-between gap-4">
+              <dt className="text-stone-400">Muro</dt>
+              <dd className="text-stone-100">{formatearSuperficie(unidad.superficieMuro)}</dd>
+            </div>
+            {unidad.dormitorios > 0 && (
+              <div className="flex justify-between gap-4">
+                <dt className="text-stone-400">Dormitorios</dt>
+                <dd className="text-stone-100">{unidad.dormitorios}</dd>
+              </div>
+            )}
+            {unidad.banos > 0 && (
+              <div className="flex justify-between gap-4">
+                <dt className="text-stone-400">Baños</dt>
+                <dd className="text-stone-100">{unidad.banos}</dd>
+              </div>
+            )}
             <div className="flex justify-between gap-4">
               <dt className="text-stone-400">Orientación</dt>
               <dd className="text-stone-100">{unidad.orientacion}</dd>
@@ -109,6 +141,19 @@ export function FichaUnidadShell({ unidad, basePath, children, extra }: Props) {
               </div>
             )}
           </dl>
+
+          {AMENITIES.some(([campo]) => unidad[campo]) && (
+            <div className="mt-4 flex flex-wrap gap-2 border-t border-white/10 pt-4">
+              {AMENITIES.filter(([campo]) => unidad[campo]).map(([campo, etiqueta]) => (
+                <span
+                  key={campo}
+                  className="rounded-full border border-white/15 bg-white/5 px-2.5 py-1 text-xs text-stone-200"
+                >
+                  {etiqueta}
+                </span>
+              ))}
+            </div>
+          )}
 
           {unidad.descripcion && (
             <p className="mt-5 border-t border-white/10 pt-4 text-sm leading-relaxed text-stone-300">

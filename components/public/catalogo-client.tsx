@@ -10,6 +10,8 @@ type UnidadCatalogo = {
   numero: string;
   tipologia: string;
   superficieTotal: number;
+  dormitorios: number;
+  banos: number;
   orientacion: string;
   estado: string;
   precio: number;
@@ -204,6 +206,16 @@ export function CatalogoClient({ unidades }: { unidades: UnidadCatalogo[] }) {
                 <p className="mt-1 text-sm capitalize text-stone-400">
                   {u.tipologia} · {formatearSuperficie(u.superficieTotal)} · {u.orientacion}
                 </p>
+                {(u.dormitorios > 0 || u.banos > 0) && (
+                  <p className="mt-0.5 text-xs text-stone-500">
+                    {[
+                      u.dormitorios > 0 && `${u.dormitorios} dorm.`,
+                      u.banos > 0 && `${u.banos} baños`,
+                    ]
+                      .filter(Boolean)
+                      .join(" · ")}
+                  </p>
+                )}
                 <p className="text-xs text-stone-500">
                   {u.pisoNumero === 0 ? "Planta baja" : `Piso ${u.pisoNumero}`}
                 </p>

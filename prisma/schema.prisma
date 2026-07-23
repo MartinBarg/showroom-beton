@@ -52,6 +52,15 @@ model Unidad {
   superficieTotal       Float
   superficieCubierta    Float
   superficieDescubierta Float
+  // Superficie de muros, separada de cubierta/descubierta en los planos reales
+  superficieMuro        Float    @default(0)
+  dormitorios           Int      @default(0)
+  banos                 Int      @default(0)
+  balcon                Boolean  @default(false)
+  pileta                Boolean  @default(false)
+  solarium              Boolean  @default(false)
+  jardin                Boolean  @default(false)
+  terraza               Boolean  @default(false)
   orientacion           String
   precio                Float
   // "disponible" | "reservada" | "vendida"
