@@ -21,6 +21,8 @@ export default async function CatalogoPage() {
           numero: u.numero,
           tipologia: u.tipologia,
           superficieTotal: u.superficieTotal,
+          dormitorios: u.dormitorios,
+          banos: u.banos,
           orientacion: u.orientacion,
           estado: u.estado,
           precio: u.precio,

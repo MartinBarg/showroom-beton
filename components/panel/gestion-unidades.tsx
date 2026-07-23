@@ -27,6 +27,14 @@ type UnidadDTO = {
   superficieTotal: number;
   superficieCubierta: number;
   superficieDescubierta: number;
+  superficieMuro: number;
+  dormitorios: number;
+  banos: number;
+  balcon: boolean;
+  pileta: boolean;
+  solarium: boolean;
+  jardin: boolean;
+  terraza: boolean;
   orientacion: string;
   precio: number;
   estado: string;
@@ -55,6 +63,14 @@ type FormUnidad = {
   superficieTotal: string;
   superficieCubierta: string;
   superficieDescubierta: string;
+  superficieMuro: string;
+  dormitorios: string;
+  banos: string;
+  balcon: boolean;
+  pileta: boolean;
+  solarium: boolean;
+  jardin: boolean;
+  terraza: boolean;
   orientacion: string;
   precio: string;
   estado: string;
@@ -77,6 +93,14 @@ function formVacio(pisoId: string): FormUnidad {
     superficieTotal: "",
     superficieCubierta: "",
     superficieDescubierta: "0",
+    superficieMuro: "0",
+    dormitorios: "0",
+    banos: "0",
+    balcon: false,
+    pileta: false,
+    solarium: false,
+    jardin: false,
+    terraza: false,
     orientacion: "Norte",
     precio: "",
     estado: "disponible",
@@ -159,6 +183,14 @@ export function GestionUnidades({ pisos, agencias }: Props) {
       superficieTotal: Number(form.superficieTotal),
       superficieCubierta: Number(form.superficieCubierta),
       superficieDescubierta: Number(form.superficieDescubierta),
+      superficieMuro: Number(form.superficieMuro),
+      dormitorios: Number(form.dormitorios),
+      banos: Number(form.banos),
+      balcon: form.balcon,
+      pileta: form.pileta,
+      solarium: form.solarium,
+      jardin: form.jardin,
+      terraza: form.terraza,
       orientacion: form.orientacion,
       precio: Number(form.precio),
       estado: form.estado,
@@ -337,6 +369,14 @@ export function GestionUnidades({ pisos, agencias }: Props) {
                             superficieTotal: String(u.superficieTotal),
                             superficieCubierta: String(u.superficieCubierta),
                             superficieDescubierta: String(u.superficieDescubierta),
+                            superficieMuro: String(u.superficieMuro),
+                            dormitorios: String(u.dormitorios),
+                            banos: String(u.banos),
+                            balcon: u.balcon,
+                            pileta: u.pileta,
+                            solarium: u.solarium,
+                            jardin: u.jardin,
+                            terraza: u.terraza,
                             orientacion: u.orientacion,
                             precio: String(u.precio),
                             estado: u.estado,
@@ -445,7 +485,7 @@ export function GestionUnidades({ pisos, agencias }: Props) {
                 />
               </div>
               <div className="space-y-1.5">
-                <Label>Sup. descubierta (m²)</Label>
+                <Label>Sup. descubierta / espacios verdes (m²)</Label>
                 <Input
                   required
                   type="number"
@@ -455,6 +495,59 @@ export function GestionUnidades({ pisos, agencias }: Props) {
                   onChange={(e) => setForm({ ...form, superficieDescubierta: e.target.value })}
                 />
               </div>
+              <div className="space-y-1.5">
+                <Label>Sup. de muro (m²)</Label>
+                <Input
+                  type="number"
+                  step="0.1"
+                  min={0}
+                  value={form.superficieMuro}
+                  onChange={(e) => setForm({ ...form, superficieMuro: e.target.value })}
+                />
+              </div>
+            </div>
+
+            <div className="grid gap-4 sm:grid-cols-3">
+              <div className="space-y-1.5">
+                <Label>Dormitorios</Label>
+                <Input
+                  type="number"
+                  min={0}
+                  value={form.dormitorios}
+                  onChange={(e) => setForm({ ...form, dormitorios: e.target.value })}
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label>Baños</Label>
+                <Input
+                  type="number"
+                  min={0}
+                  value={form.banos}
+                  onChange={(e) => setForm({ ...form, banos: e.target.value })}
+                />
+              </div>
+            </div>
+
+            <div className="flex flex-wrap gap-4">
+              {(
+                [
+                  ["balcon", "Balcón"],
+                  ["pileta", "Pileta"],
+                  ["solarium", "Solarium"],
+                  ["jardin", "Jardín"],
+                  ["terraza", "Terraza"],
+                ] as const
+              ).map(([campo, etiqueta]) => (
+                <label key={campo} className="flex items-center gap-2 text-sm">
+                  <input
+                    type="checkbox"
+                    className="h-4 w-4"
+                    checked={form[campo]}
+                    onChange={(e) => setForm({ ...form, [campo]: e.target.checked })}
+                  />
+                  {etiqueta}
+                </label>
+              ))}
             </div>
 
             <div className="grid gap-4 sm:grid-cols-3">
